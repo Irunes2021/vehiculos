@@ -152,11 +152,24 @@ const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authoriz
 
 let data=[], editId=null;
 
+// ─── SESIÓN COMPARTIDA *.ccirunes.com ───────────────────────
+const GRUPO='club';
+const CC_HORAS=12;
+const ccSesionActiva=g=>document.cookie.split('; ').some(c=>c==='cc_'+g+'=ok');
+const ccAbrirSesion =g=>document.cookie=`cc_${g}=ok; domain=.ccirunes.com; path=/; max-age=${CC_HORAS*3600}; SameSite=Lax; Secure`;
+const ccCerrarSesion=g=>document.cookie=`cc_${g}=; domain=.ccirunes.com; path=/; max-age=0; SameSite=Lax; Secure`;
+// ────────────────────────────────────────────────────────────
+
+function entrarApp(){
+  document.getElementById('lock-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadData();
+}
+
 function checkCode(){
   if(document.getElementById('lock-input').value==='2121'){
-    document.getElementById('lock-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    loadData();
+    ccAbrirSesion(GRUPO);
+    entrarApp();
   } else {
     document.getElementById('lock-error').style.display='block';
     document.getElementById('lock-input').value='';
@@ -298,6 +311,9 @@ async function guardar(){
     btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i>Guardar';
   }
 }
+
+// Si ya hay sesión abierta en otra app del grupo, entrar directo
+if (ccSesionActiva(GRUPO)) entrarApp();
 </script>
 </body>
 </html>
